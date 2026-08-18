@@ -82,13 +82,11 @@ export default function AIInsightsPage() {
   }
 
   return (
-    <div className="flex-1 px-8 pb-8 pt-2 xl:px-12 xl:pb-12 xl:pt-4 bg-slate-50/50 flex flex-col h-full overflow-hidden">
-      {/* 1. Added flex, h-full, and overflow-hidden to lock the page height */}
+    <div className="px-4 sm:px-8 pb-8 pt-4 xl:px-12 xl:pb-12 bg-slate-50/50">
       
-      {/* 2. Made this wrapper stretch full height to distribute space */}
-      <div className="max-w-5xl mx-auto w-full h-full flex flex-col space-y-6">
+      <div className="max-w-5xl mx-auto w-full space-y-6">
 
-        {/* Header - no margin adjustments needed since flex handles spacing */}
+        {/* Header */}
         <div className="flex items-start justify-between shrink-0">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
@@ -99,12 +97,11 @@ export default function AIInsightsPage() {
           </div>
         </div>
 
-        {/* 3. Grid area takes up remaining vertical space (flex-1 min-h-0) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-1 min-h-0">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* Left Column: Self Assessment - allow it to scroll internally if screen is very small */}
-          <div className="lg:col-span-1 overflow-y-auto pr-2 pb-2">
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 h-full">
+          {/* Left Column: Self Assessment */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600">
                   <ActivitySquare className="w-5 h-5" />
@@ -175,13 +172,11 @@ export default function AIInsightsPage() {
           </div>
 
           {/* Right Column: History */}
-          <div className="lg:col-span-2 h-full flex flex-col">
-            {/* 4. Removed min-h-[500px], forced this card to take full height of its grid track */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col h-full overflow-hidden">
-              <h2 className="text-xl font-bold text-slate-900 mb-6 shrink-0">Prediction History</h2>
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+              <h2 className="text-xl font-bold text-slate-900 mb-6">Prediction History</h2>
 
-              {/* 5. The content inside the box handles its own scrolling if it overflows */}
-              <div className="flex-1 overflow-y-auto pr-2 pb-2">
+              <div>
                 {predictions.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full py-10 text-center">
                     <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
@@ -194,30 +189,30 @@ export default function AIInsightsPage() {
                   <div className="space-y-4">
                     {predictions.map((p) => (
                       <div key={p.id} className="p-5 rounded-2xl border border-slate-100 hover:border-brand-200 transition-colors group bg-slate-50/50">
-                        <div className="flex items-start justify-between gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                           <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <span className={clsx("px-2.5 py-1 rounded-full text-xs font-bold border", getRiskColor(p.prediction))}>
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
+                              <span className={clsx("px-2.5 py-1 rounded-full text-xs font-bold border whitespace-nowrap", getRiskColor(p.prediction))}>
                                 {p.prediction} Risk
                               </span>
-                              <span className="text-sm text-slate-500 font-medium">
+                              <span className="text-sm text-slate-500 font-medium whitespace-nowrap">
                                 {new Date(p.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                               </span>
                               {p.reviewedByDoctor && (
-                                <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                                <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 whitespace-nowrap">
                                   <CheckCircle2 className="w-3 h-3" /> Reviewed
                                 </span>
                               )}
                             </div>
                             <h4 className="font-bold text-slate-900">{p.modelType}</h4>
-                            <p className="text-sm text-slate-600 mt-1 leading-relaxed">{p.explanation}</p>
+                            <p className="text-sm text-slate-600 mt-2 leading-relaxed">{p.explanation}</p>
                           </div>
 
-                          <div className="text-right shrink-0">
-                            <div className="text-2xl font-bold text-slate-900">
+                          <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:gap-0 bg-white sm:bg-transparent p-3 sm:p-0 rounded-xl sm:rounded-none border sm:border-0 border-slate-100 shrink-0">
+                            <div className="text-2xl font-black text-slate-900">
                               {(p.confidenceScore * 100).toFixed(0)}%
                             </div>
-                            <div className="text-xs text-slate-500 font-medium uppercase tracking-wider mt-0.5">Confidence</div>
+                            <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Confidence</div>
                           </div>
                         </div>
                       </div>

@@ -144,7 +144,7 @@ export default function ProfilePage() {
             
             {/* Personal Information */}
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <h3 className="text-lg font-bold text-slate-900">Personal Information</h3>
                 {!isEditing ? (
                   <button onClick={() => setIsEditing(true)} className="text-brand-600 hover:text-brand-700 text-sm font-medium transition-colors">Edit</button>
@@ -168,7 +168,7 @@ export default function ProfilePage() {
                         type="text" 
                         value={editData.name} 
                         onChange={(e) => setEditData({...editData, name: e.target.value})}
-                        className="w-full border-b border-brand-300 focus:border-brand-600 outline-none pb-1 bg-transparent text-slate-700" 
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all" 
                       />
                     ) : (
                       <span className="text-slate-700 font-medium">{user.name}</span>
@@ -185,7 +185,7 @@ export default function ProfilePage() {
                         type="email" 
                         value={editData.email} 
                         onChange={(e) => setEditData({...editData, email: e.target.value})}
-                        className="w-full border-b border-brand-300 focus:border-brand-600 outline-none pb-1 bg-transparent text-slate-700" 
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all" 
                       />
                     ) : (
                       <span className="text-slate-700 font-medium">{user.email || 'Not provided'}</span>
@@ -202,7 +202,8 @@ export default function ProfilePage() {
                         type="tel" 
                         value={editData.phone} 
                         onChange={(e) => setEditData({...editData, phone: e.target.value})}
-                        className="w-full border-b border-brand-300 focus:border-brand-600 outline-none pb-1 bg-transparent text-slate-700" 
+                        maxLength={10}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all" 
                       />
                     ) : (
                       <span className="text-slate-700 font-medium">{user.phone || 'Not provided'}</span>
@@ -217,8 +218,8 @@ export default function ProfilePage() {
               <h3 className="text-lg font-bold text-slate-900 mb-6">Security Settings</h3>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-100 hover:border-slate-200 transition-colors bg-slate-50/50">
-                  <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl border border-slate-100 hover:border-slate-200 transition-colors bg-slate-50/50">
+                  <div className="flex items-start sm:items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                       <KeyRound className="w-5 h-5" />
                     </div>

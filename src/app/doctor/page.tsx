@@ -65,7 +65,7 @@ export default function DoctorDashboard() {
   const nextPatients = queue.filter(q => q.status !== 'IN_CONSULTATION');
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto h-full flex flex-col">
+    <div className="space-y-8 max-w-5xl mx-auto md:h-full flex flex-col pb-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
         <div>
@@ -79,24 +79,24 @@ export default function DoctorDashboard() {
       <div className="grid md:grid-cols-2 gap-8 flex-1 min-h-0">
         
         {/* Left Col: Current Patient */}
-        <div className="space-y-6 h-full flex flex-col">
-          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200 h-full flex flex-col">
+        <div className="space-y-6 md:h-full flex flex-col">
+          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-200 md:h-full flex flex-col">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2 shrink-0">
               <Activity className="w-5 h-5 text-brand-600" />
               Current Consultation
             </h2>
             
             {currentPatient ? (
-              <div className="flex-1 flex flex-col overflow-y-auto pr-2 pb-2">
+              <div className="flex-1 flex flex-col md:overflow-y-auto pr-2 pb-2">
                 <div className="mb-8">
                   <p className="text-sm text-slate-500 font-medium uppercase tracking-wider mb-1">Patient</p>
-                  <Link href={`/doctor/patients/${currentPatient.patientId}?name=${encodeURIComponent(currentPatient.patientName)}`} className="text-3xl font-extrabold text-brand-600 hover:text-brand-700 hover:underline inline-block transition-colors">
+                  <Link href={`/doctor/patients/${currentPatient.patientId}?name=${encodeURIComponent(currentPatient.patientName)}`} className="text-3xl font-extrabold text-brand-600 hover:text-brand-700 hover:underline inline-block transition-colors break-words">
                     {currentPatient.patientName}
                   </Link>
                   <p className="text-slate-500 font-mono mt-1">ID: {currentPatient.bookingReference}</p>
                 </div>
                 
-                <div className="flex gap-8 mb-auto">
+                <div className="flex flex-wrap gap-8 mb-auto">
                   <div>
                     <p className="text-sm text-slate-500 font-medium uppercase tracking-wider mb-1">Slot</p>
                     <p className="text-lg font-semibold flex items-center gap-1"><Clock className="w-4 h-4"/>{currentPatient.slotTime}</p>
@@ -112,18 +112,18 @@ export default function DoctorDashboard() {
                     <CheckCircle className="w-6 h-6" /> Complete Consultation
                   </Link>
                   
-                  <div className="flex gap-3">
-                    <button disabled={loading} onClick={() => markDelay(15)} className="flex-1 py-3 bg-amber-50 text-amber-700 rounded-xl font-bold hover:bg-amber-100 transition-colors flex justify-center items-center gap-2 border border-amber-200 disabled:opacity-70">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button disabled={loading} onClick={() => markDelay(15)} className="flex-1 py-3 bg-amber-50 text-amber-700 rounded-xl font-bold hover:bg-amber-100 transition-colors flex justify-center items-center gap-2 border border-amber-200 disabled:opacity-70 whitespace-nowrap">
                       {loading ? <Spinner size={20} /> : <Clock4 className="w-5 h-5" />} Delay +15m
                     </button>
-                    <button disabled={loading} onClick={() => markDelay(30)} className="flex-1 py-3 bg-red-50 text-red-700 rounded-xl font-bold hover:bg-red-100 transition-colors flex justify-center items-center gap-2 border border-red-200 disabled:opacity-70">
+                    <button disabled={loading} onClick={() => markDelay(30)} className="flex-1 py-3 bg-red-50 text-red-700 rounded-xl font-bold hover:bg-red-100 transition-colors flex justify-center items-center gap-2 border border-red-200 disabled:opacity-70 whitespace-nowrap">
                       {loading ? <Spinner size={20} /> : null} Delay +30m
                     </button>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
+              <div className="flex-1 flex flex-col items-center justify-center text-slate-400 py-12">
                 <Users className="w-16 h-16 mb-4 opacity-20" />
                 <p className="text-lg font-medium text-slate-500">No active consultation</p>
                 {nextPatients.length > 0 && nextPatients[0].status === 'CHECKED_IN' && (
@@ -137,7 +137,7 @@ export default function DoctorDashboard() {
         </div>
 
         {/* Right Col: Next Queue */}
-        <div className="bg-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl h-full flex flex-col overflow-hidden">
+        <div className="bg-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl md:h-full flex flex-col md:overflow-hidden">
           <h2 className="text-xl font-bold mb-6 flex items-center justify-between shrink-0">
             Up Next
             <span className="text-sm font-medium bg-slate-800 text-slate-300 px-3 py-1 rounded-full">{nextPatients.length} Waiting</span>

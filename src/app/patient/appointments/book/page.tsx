@@ -76,7 +76,7 @@ export default function BookAppointmentPage() {
           <CheckCircle2 className="w-12 h-12" />
         </div>
         <h1 className="text-3xl font-black text-slate-900 mb-2">Appointment Confirmed!</h1>
-        <p className="text-lg text-slate-500 mb-8">Your booking with Dr. {bookingData.doctor.name} was successful.</p>
+        <p className="text-lg text-slate-500 mb-8">Your booking with {bookingData.doctor.name} was successful.</p>
         
         <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-left mb-8 max-w-sm mx-auto">
           <p className="text-sm font-bold text-slate-500 uppercase mb-1">Booking ID</p>

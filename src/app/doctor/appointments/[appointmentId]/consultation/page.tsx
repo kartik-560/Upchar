@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Stethoscope, Pill, AlertCircle, Save, Plus, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
 import { getAppointmentById } from '../../../../../api/appointments';
-import { saveConsultation } from '../../../../../api/consultations';
+import { saveConsultation, endConsultation } from '../../../../../api/consultations';
 import { Skeleton } from '../../../../../components/Skeleton';
 import { Spinner } from '../../../../../components/Spinner';
 
@@ -76,7 +76,9 @@ export default function DoctorConsultationForm() {
 
       await saveConsultation(appt.consultation.id, payload);
       
-      // Also end the consultation if desired, but for MVP we just redirect back to queue.
+      // End the consultation to update queue and statuses
+      await endConsultation(appt.consultation.id);
+      
       router.push('/doctor');
     } catch (err: any) {
       alert(err.message);

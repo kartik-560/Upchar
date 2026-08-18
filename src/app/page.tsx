@@ -4,16 +4,16 @@ import { ArrowRight, Activity, CalendarCheck, Clock, Users } from 'lucide-react'
 export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-brand-200">
-      <nav className="fixed w-full z-50 glass px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <img src="/upchar.jpg.jpeg" alt="Upchaar Logo" className="h-8 w-auto rounded-lg shadow-sm" />
-          <img src="/upchar1.jpg.jpeg" alt="Upchaar Logo Secondary" className="h-8 w-auto rounded-lg shadow-sm" />
+      <nav className="fixed w-full z-50 glass px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-2 shrink-0 mr-2">
+          <img src="/upchar.jpg.jpeg" alt="Upchaar Logo" className="h-7 sm:h-8 w-auto rounded-lg shadow-sm shrink-0" />
+          <img src="/upchar1.jpg.jpeg" alt="Upchaar Logo Secondary" className="h-7 sm:h-8 w-auto rounded-lg shadow-sm shrink-0" />
         </div>
-        <div className="flex gap-4">
-          <Link href="/login" className="px-5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+        <div className="flex items-center gap-1 sm:gap-4 shrink-0">
+          <Link href="/login" className="px-2 sm:px-5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap">
             Login
           </Link>
-          <Link href="/login?register=true" className="px-5 py-2 text-sm font-medium text-white bg-brand-600 rounded-full hover:bg-brand-700 transition-colors shadow-md shadow-brand-500/20">
+          <Link href="/login?register=true" className="px-4 sm:px-5 py-2 text-sm font-medium text-white bg-brand-600 rounded-full hover:bg-brand-700 transition-colors shadow-md shadow-brand-500/20 whitespace-nowrap">
             Get Started
           </Link>
         </div>

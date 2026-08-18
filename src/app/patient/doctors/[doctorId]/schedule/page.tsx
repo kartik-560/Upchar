@@ -80,7 +80,7 @@ export default function DoctorSchedulePage() {
 
       <div>
         <h1 className="text-3xl font-bold text-slate-900 mb-2">Book Appointment</h1>
-        <p className="text-slate-500 font-medium">Select an available time slot for Dr. {doctor.name}</p>
+        <p className="text-slate-500 font-medium">Select an available time slot for  {doctor.name}</p>
       </div>
 
       <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">

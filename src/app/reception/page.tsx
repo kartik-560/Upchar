@@ -178,14 +178,14 @@ export default function ReceptionDashboard() {
               
               {queue.map((appt, idx) => (
                 <div key={appt.id} className={clsx(
-                  "p-4 rounded-2xl border flex items-center justify-between transition-colors",
+                  "p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors",
                   appt.status === 'IN_CONSULTATION' ? "bg-brand-50 border-brand-200 shadow-sm" : 
                   appt.priority === 'EMERGENCY' ? "bg-red-50 border-red-200" :
                   "bg-white border-slate-100 hover:border-slate-300"
                 )}>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-start sm:items-center gap-4">
                     <div className={clsx(
-                      "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm",
+                      "w-10 h-10 rounded-full flex shrink-0 items-center justify-center font-bold text-sm",
                       appt.status === 'IN_CONSULTATION' ? "bg-brand-600 text-white" :
                       appt.priority === 'EMERGENCY' ? "bg-red-600 text-white" :
                       "bg-slate-100 text-slate-600"
@@ -194,10 +194,10 @@ export default function ReceptionDashboard() {
                     </div>
                     <div>
                       <p className="font-semibold text-lg">{appt.patientName}</p>
-                      <div className="flex items-center gap-3 text-sm text-slate-500">
-                        <span className="flex items-center gap-1"><Clock className="w-4 h-4"/> {appt.slotTime}</span>
+                      <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500 mt-1">
+                        <span className="flex items-center gap-1 whitespace-nowrap"><Clock className="w-4 h-4"/> {appt.slotTime}</span>
                         <span className={clsx(
-                          "px-2 py-0.5 rounded-full text-xs font-bold",
+                          "px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap",
                           appt.status === 'CHECKED_IN' ? "bg-green-100 text-green-700" :
                           appt.status === 'LATE' ? "bg-amber-100 text-amber-700" :
                           appt.status === 'IN_CONSULTATION' ? "bg-brand-100 text-brand-700" :
@@ -207,15 +207,15 @@ export default function ReceptionDashboard() {
                     </div>
                   </div>
                   
-                  <div className="flex flex-col items-end gap-2">
+                  <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start w-full sm:w-auto gap-2">
                     <span className="text-lg font-bold">
                       {appt.status === 'IN_CONSULTATION' ? 'Now' : `${appt.estimatedWait}m wait`}
                     </span>
                     
                     {appt.status === 'BOOKED' && (
-                      <div className="flex gap-2">
-                        <button onClick={() => markLateHandler(appt.id)} className="text-xs font-semibold px-2 py-1 bg-amber-50 text-amber-600 rounded hover:bg-amber-100 border border-amber-200 transition-colors">Mark Late</button>
-                        <button onClick={() => markEmergencyHandler(appt.id)} className="text-xs font-semibold px-2 py-1 bg-red-50 text-red-600 rounded hover:bg-red-100 border border-red-200 transition-colors flex items-center gap-1"><AlertTriangle className="w-3 h-3"/> Emergency</button>
+                      <div className="flex flex-wrap gap-2">
+                        <button onClick={() => markLateHandler(appt.id)} className="text-xs font-semibold px-2 py-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 border border-amber-200 transition-colors whitespace-nowrap">Mark Late</button>
+                        <button onClick={() => markEmergencyHandler(appt.id)} className="text-xs font-semibold px-2 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 border border-red-200 transition-colors flex items-center gap-1 whitespace-nowrap"><AlertTriangle className="w-3 h-3"/> Emergency</button>
                       </div>
                     )}
                   </div>

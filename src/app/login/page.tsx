@@ -53,19 +53,25 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-brand-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      
+      {/* Decorative Background Elements */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+        <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-brand-100/50 blur-3xl opacity-60"></div>
+        <div className="absolute -bottom-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-teal-100/40 blur-3xl opacity-60"></div>
+      </div>
+
+      <div className="w-full max-w-md mx-auto relative z-10">
         <Link href="/" className="flex justify-center items-center gap-2 mb-6">
-          <img src="/upchar.jpg.jpeg" alt="Upchaar Logo" className="h-12 w-auto rounded-xl shadow-md" />
-          {/* <img src="/upchar1.jpg.jpeg" alt="Upchaar Logo Secondary" className="h-12 w-auto rounded-xl shadow-md" /> */}
+          <img src="/upchar.jpg.jpeg" alt="Upchaar Logo" className="h-10 sm:h-12 w-auto rounded-xl shadow-md" />
         </Link>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900 tracking-tight">
           {isLogin ? 'Sign in to your account' : 'Create new account'}
         </h2>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:px-10 border border-slate-100">
+      <div className="mt-8 w-full max-w-md mx-auto relative z-10">
+        <div className="bg-white/80 backdrop-blur-xl py-8 px-6 shadow-2xl shadow-brand-900/5 rounded-3xl sm:px-10 border border-white/50">
           
           {error && (
             <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm font-medium border border-red-100">
