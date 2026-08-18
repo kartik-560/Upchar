@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, History, Pill, Stethoscope, Activity, Calendar } from 'lucide-react';
 import Link from 'next/link';
-import Link from 'next/link';
 import { getPatientDiagnoses, getPatientPrescriptions } from '../../../../api/medical';
 import { Skeleton } from '../../../../components/Skeleton';
 
