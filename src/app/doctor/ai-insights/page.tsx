@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import { io } from 'socket.io-client';
+import { getQueue } from '../../../api/queue';
+import { predictConsultation } from '../../../api/ai';
 import { Activity } from 'lucide-react';
 import clsx from 'clsx';
+import { Spinner } from '../../../components/Spinner';
 
 export default function DoctorAI() {
   const [user, setUser] = useState<any>(null);
@@ -25,7 +27,7 @@ export default function DoctorAI() {
     setUser(parsed);
     loadQueue(parsed.id);
 
-    const socket = io('http://localhost:4000');
+    const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000');
     socket.on('queueUpdate', (data) => {
       if (data.doctorId === parsed.id) {
         setQueue(data.queue);
@@ -37,8 +39,8 @@ export default function DoctorAI() {
 
   const loadQueue = async (docId: string) => {
     try {
-      const q = await axios.get(`http://localhost:4000/api/queue/${docId}`);
-      setQueue(q.data);
+      const data = await getQueue(docId);
+      setQueue(data);
     } catch(e) {}
   };
 
@@ -52,7 +54,7 @@ export default function DoctorAI() {
 
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:4000/api/ai/predict', {
+      const data = await predictConsultation({
         patientId: currentAppt.patientId,
         doctorId: user.id,
         vitals: {
@@ -61,7 +63,7 @@ export default function DoctorAI() {
           systolic: Number(vitals.systolic)
         }
       });
-      setPrediction(res.data);
+      setPrediction(data);
     } catch(err) {
       alert('Failed to generate prediction');
     } finally {
@@ -97,8 +99,8 @@ export default function DoctorAI() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Systolic BP</label>
                   <input type="number" required value={vitals.systolic} onChange={e=>setVitals({...vitals, systolic: e.target.value})} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none" />
                 </div>
-                <button type="submit" disabled={loading} className="w-full py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-70">
-                  Generate AI Prediction
+                <button type="submit" disabled={loading} className="w-full py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-70 flex justify-center items-center gap-2">
+                  {loading ? <><Spinner size={20} /> Generating...</> : 'Generate AI Prediction'}
                 </button>
               </form>
             </div>

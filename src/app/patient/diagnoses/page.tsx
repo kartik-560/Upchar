@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Stethoscope, Clock, UserRound, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
+import { getPatientDiagnoses } from '../../../api/medical';
+import { Skeleton } from '../../../components/Skeleton';
 
 export default function DiagnosesPage() {
   const [diagnoses, setDiagnoses] = useState<any[]>([]);
@@ -15,8 +17,8 @@ export default function DiagnosesPage() {
 
   const fetchData = async (patientId: string) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/diagnoses/patient/${patientId}`);
-      setDiagnoses(await res.json());
+      const data = await getPatientDiagnoses(patientId);
+      setDiagnoses(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -32,7 +34,10 @@ export default function DiagnosesPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-slate-500">Loading diagnoses...</div>
+        <div className="space-y-6">
+          <Skeleton className="h-64 rounded-3xl w-full" />
+          <Skeleton className="h-64 rounded-3xl w-full" />
+        </div>
       ) : diagnoses.length === 0 ? (
         <div className="bg-white rounded-3xl p-12 border border-slate-200 text-center shadow-sm">
           <Stethoscope className="w-16 h-16 text-slate-300 mx-auto mb-4" />

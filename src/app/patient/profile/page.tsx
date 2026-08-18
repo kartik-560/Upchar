@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserRound, Mail, Phone, Calendar as CalendarIcon, ShieldCheck, MapPin, KeyRound, Clock, Edit2, Check, X } from 'lucide-react';
 import clsx from 'clsx';
+import { Skeleton } from '../../../components/Skeleton';
+import { Spinner } from '../../../components/Spinner';
+import { getProfile, updateProfile } from '../../../api/auth';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -26,12 +29,9 @@ export default function ProfilePage() {
 
   const fetchProfile = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/auth/${id}`);
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data);
-        setEditData({ name: data.name || '', email: data.email || '', phone: data.phone || '' });
-      }
+      const data = await getProfile(id);
+      setUser(data);
+      setEditData({ name: data.name || '', email: data.email || '', phone: data.phone || '' });
     } catch (err) {
       console.error(err);
     } finally {
@@ -42,23 +42,14 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/auth/${user.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editData)
-      });
-      if (res.ok) {
-        const updatedUser = await res.json();
-        setUser(updatedUser);
-        setIsEditing(false);
-        // Update local storage user name
-        const u = localStorage.getItem('user');
-        if (u) {
-          const parsed = JSON.parse(u);
-          localStorage.setItem('user', JSON.stringify({ ...parsed, name: updatedUser.name }));
-        }
-      } else {
-        alert('Failed to update profile');
+      const updatedUser = await updateProfile(user.id, editData);
+      setUser(updatedUser);
+      setIsEditing(false);
+      // Update local storage user name
+      const u = localStorage.getItem('user');
+      if (u) {
+        const parsed = JSON.parse(u);
+        localStorage.setItem('user', JSON.stringify({ ...parsed, name: updatedUser.name }));
       }
     } catch (err) {
       console.error(err);
@@ -70,8 +61,30 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex-1 p-8 xl:p-12 flex justify-center items-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
+      <div className="max-w-4xl mx-auto p-8 xl:p-12">
+        <Skeleton className="w-1/3 h-10 mb-2" />
+        <Skeleton className="w-1/2 h-6 mb-8" />
+        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-6 mb-8 pb-8 border-b border-slate-100">
+            <Skeleton className="w-24 h-24 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="w-48 h-8" />
+              <Skeleton className="w-32 h-5" />
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <Skeleton className="w-full h-12" />
+              <Skeleton className="w-full h-12" />
+              <Skeleton className="w-full h-12" />
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="w-full h-12" />
+              <Skeleton className="w-full h-12" />
+              <Skeleton className="w-full h-12" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -138,8 +151,8 @@ export default function ProfilePage() {
                 ) : (
                   <div className="flex items-center gap-3">
                     <button onClick={() => setIsEditing(false)} className="text-slate-500 hover:text-slate-700 text-sm font-medium transition-colors">Cancel</button>
-                    <button onClick={handleSave} disabled={saving} className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-70">
-                      {saving ? 'Saving...' : 'Save'}
+                    <button type="button" onClick={handleSave} disabled={saving} className="py-2 px-4 bg-brand-600 text-white text-sm font-bold rounded-xl hover:bg-brand-700 transition-colors disabled:opacity-70 flex items-center gap-2 shadow-sm shadow-brand-500/30">
+                      {saving ? <><Spinner size={16} /> Saving...</> : 'Save Changes'}
                     </button>
                   </div>
                 )}

@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, CheckCircle2 } from 'lucide-react';
 import clsx from 'clsx';
+import { getAppointmentById, rescheduleAppointment } from '../../../../../api/appointments';
+import { getDoctorSlots } from '../../../../../api/doctors';
+import { Skeleton } from '../../../../../components/Skeleton';
+import { Spinner } from '../../../../../components/Spinner';
 
 export default function RescheduleAppointmentPage() {
   const { appointmentId } = useParams() as { appointmentId: string };
@@ -28,9 +32,7 @@ export default function RescheduleAppointmentPage() {
 
   const fetchAppt = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/appointments/${appointmentId}`);
-      if (!res.ok) throw new Error('Not found');
-      const data = await res.json();
+      const data = await getAppointmentById(appointmentId);
       setAppt(data);
       // Default to next day from current appointment
       const d = new Date(data.date);
@@ -44,8 +46,8 @@ export default function RescheduleAppointmentPage() {
   const fetchSlots = async (selectedDate: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/doctors/${appt.doctorId}/slots?date=${selectedDate}`);
-      setSlots(await res.json());
+      const data = await getDoctorSlots(appt.doctorId, selectedDate);
+      setSlots(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -64,15 +66,7 @@ export default function RescheduleAppointmentPage() {
     
     setRescheduling(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/appointments/${appt.id}/reschedule`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ newSlotId: slotId, date })
-      });
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to reschedule');
-      }
+      await rescheduleAppointment(appt.id, { newSlotId: slotId, date });
       setSuccess(true);
     } catch (err: any) {
       alert(err.message);
@@ -96,7 +90,16 @@ export default function RescheduleAppointmentPage() {
     );
   }
 
-  if (!appt) return <div className="p-8">Loading...</div>;
+  if (!appt) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-8 pb-12">
+        <Skeleton className="w-1/4 h-6 mb-8" />
+        <Skeleton className="w-1/3 h-10 mb-2" />
+        <Skeleton className="h-24 rounded-2xl w-full" />
+        <Skeleton className="h-96 rounded-3xl w-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-12">
@@ -139,7 +142,12 @@ export default function RescheduleAppointmentPage() {
 
         {/* Slots Grid */}
         {loading ? (
-          <div className="text-center text-slate-500 py-12">Loading availability...</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-24 rounded-xl" />
+          </div>
         ) : slots.length === 0 ? (
           <div className="text-center py-16 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
             <Clock className="w-12 h-12 text-slate-300 mx-auto mb-3" />
@@ -171,7 +179,7 @@ export default function RescheduleAppointmentPage() {
                     "text-xs font-bold uppercase tracking-wider px-2 py-1 rounded",
                     isAvailable ? "bg-green-100 text-green-700" : "bg-slate-200 text-slate-500"
                   )}>
-                    {isAvailable ? 'Select' : 'Booked'}
+                    {rescheduling ? <Spinner size={12} className="inline-block" /> : (isAvailable ? 'Select' : 'Booked')}
                   </span>
                 </button>
               );

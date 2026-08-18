@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { ArrowLeft, Calendar, Clock, MapPin, CheckCircle, XCircle, AlertCircle, UserRound } from 'lucide-react';
 import clsx from 'clsx';
 import { QRCodeSVG } from 'qrcode.react';
+import { getAppointmentById, cancelAppointment } from '../../../../api/appointments';
+import { Skeleton } from '../../../../components/Skeleton';
+import { Spinner } from '../../../../components/Spinner';
 
 export default function AppointmentDetailsPage() {
   const { appointmentId } = useParams() as { appointmentId: string };
@@ -22,9 +25,8 @@ export default function AppointmentDetailsPage() {
 
   const fetchAppt = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/appointments/${appointmentId}`);
-      if (!res.ok) throw new Error('Not found');
-      setAppt(await res.json());
+      const data = await getAppointmentById(appointmentId);
+      setAppt(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -35,12 +37,7 @@ export default function AppointmentDetailsPage() {
   const handleCancel = async () => {
     setCancelling(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/appointments/${appointmentId}/cancel`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: cancelReason, cancelledBy: 'Patient' })
-      });
-      if (!res.ok) throw new Error('Failed to cancel');
+      await cancelAppointment(appointmentId, { reason: cancelReason, cancelledBy: 'Patient' });
       await fetchAppt(); // Refresh data
       setShowCancelModal(false);
     } catch (err: any) {
@@ -50,7 +47,21 @@ export default function AppointmentDetailsPage() {
     }
   };
 
-  if (loading) return <div className="p-8">Loading details...</div>;
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-8 pb-12">
+        <Skeleton className="w-1/4 h-6 mb-8" />
+        <Skeleton className="w-1/3 h-10 mb-2" />
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="md:col-span-2 space-y-6">
+            <Skeleton className="h-48 rounded-3xl" />
+            <Skeleton className="h-48 rounded-3xl" />
+          </div>
+          <Skeleton className="h-64 rounded-3xl" />
+        </div>
+      </div>
+    );
+  }
   if (!appt) return <div className="p-8 text-red-500">Appointment not found.</div>;
 
   const canModify = appt.status !== 'CANCELLED' && appt.status !== 'COMPLETED';
@@ -170,8 +181,8 @@ export default function AppointmentDetailsPage() {
               <button onClick={() => setShowCancelModal(false)} className="flex-1 py-3 text-slate-600 font-bold hover:bg-slate-50 rounded-xl transition-colors">
                 Keep Appointment
               </button>
-              <button disabled={cancelling} onClick={handleCancel} className="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-70 shadow-lg shadow-red-500/20">
-                {cancelling ? 'Cancelling...' : 'Confirm Cancel'}
+              <button disabled={cancelling} onClick={handleCancel} className="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-70 flex justify-center items-center gap-2 shadow-lg shadow-red-500/20">
+                {cancelling ? <><Spinner size={20} /> Cancelling...</> : 'Confirm Cancel'}
               </button>
             </div>
           </div>

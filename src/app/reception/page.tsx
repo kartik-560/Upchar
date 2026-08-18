@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import { io } from 'socket.io-client';
+import { getHospitals, getDepartments } from '../../api/hospitals';
+import { getQueue, checkIn, markLate, markEmergency } from '../../api/queue';
 import { Activity, CheckSquare, Scan, Users, Clock, AlertTriangle, LogOut, Camera } from 'lucide-react';
-import clsx from 'clsx';
 import { Scanner } from '@yudiel/react-qr-scanner';
+import { Spinner } from '../../components/Spinner';
 
 export default function ReceptionDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -16,6 +17,7 @@ export default function ReceptionDashboard() {
   const [scanInput, setScanInput] = useState('');
   const [message, setMessage] = useState('');
   const [isScanning, setIsScanning] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
@@ -27,7 +29,7 @@ export default function ReceptionDashboard() {
     setUser(parsed);
     loadDoctors();
 
-    const socket = io('http://localhost:4000');
+    const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000');
     socket.on('queueUpdate', (data) => {
       setQueue((prevQueue) => {
         // since we might be viewing this doctor's queue, refresh if doc id matches
@@ -44,11 +46,11 @@ export default function ReceptionDashboard() {
 
   const loadDoctors = async () => {
     try {
-      const hosps = await axios.get('http://localhost:4000/api/hospitals');
-      if (hosps.data.length > 0) {
-        const depts = await axios.get(`http://localhost:4000/api/hospitals/${hosps.data[0].id}/departments`);
+      const hosps = await getHospitals();
+      if (hosps.length > 0) {
+        const depts = await getDepartments(hosps[0].id);
         let allDocs: any[] = [];
-        depts.data.forEach((d:any) => allDocs.push(...d.doctors));
+        depts.forEach((d:any) => allDocs.push(...d.doctors));
         setDoctors(allDocs);
         if (allDocs.length > 0) {
           setSelectedDoc(allDocs[0].id);
@@ -60,8 +62,8 @@ export default function ReceptionDashboard() {
 
   const loadQueue = async (docId: string) => {
     try {
-      const q = await axios.get(`http://localhost:4000/api/queue/${docId}`);
-      setQueue(q.data);
+      const data = await getQueue(docId);
+      setQueue(data);
     } catch(e) {}
   };
 
@@ -73,27 +75,30 @@ export default function ReceptionDashboard() {
   const handleCheckIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!scanInput) return;
+    setLoading(true);
     try {
-      await axios.post('http://localhost:4000/api/queue/checkin', { appointmentId: scanInput });
+      await checkIn(scanInput);
       setMessage('Checked in successfully!');
       setScanInput('');
       loadQueue(selectedDoc);
       setTimeout(() => setMessage(''), 3000);
     } catch (e:any) {
       setMessage('Error checking in: ' + e.response?.data?.error || e.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const markLate = async (appointmentId: string) => {
+  const markLateHandler = async (appointmentId: string) => {
     try {
-      await axios.post('http://localhost:4000/api/queue/simulate-late', { appointmentId });
+      await markLate(appointmentId);
       loadQueue(selectedDoc);
     } catch (e) {}
   };
 
-  const markEmergency = async (appointmentId: string) => {
+  const markEmergencyHandler = async (appointmentId: string) => {
     try {
-      await axios.post('http://localhost:4000/api/queue/emergency', { appointmentId });
+      await markEmergency(appointmentId);
       loadQueue(selectedDoc);
     } catch (e) {}
   };
@@ -112,7 +117,9 @@ export default function ReceptionDashboard() {
                 <Camera className="w-5 h-5" />
               </button>
             </h3>
-            In this portal you have not use the AI/ML for prediction and from where the patient will book the appoinment and from the doctor will add the slot for bookking accroding to there availability 
+            <p className="text-sm text-slate-500 mb-6 bg-slate-50 p-3 rounded-lg border border-slate-100">
+              In this portal you have not use the AI/ML for prediction and from where the patient will book the appoinment and from the doctor will add the slot for bookking accroding to there availability 
+            </p>
             {isScanning && (
               <div className="mb-4 rounded-xl overflow-hidden border border-slate-200">
                 <Scanner 
@@ -134,8 +141,8 @@ export default function ReceptionDashboard() {
                 placeholder="e.g. REF1001 or ID" 
                 className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none mb-4"
               />
-              <button type="submit" className="w-full py-3 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition-colors">
-                Verify & Check-In
+              <button type="submit" disabled={loading} className="w-full py-3 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition-colors disabled:opacity-70 flex justify-center items-center gap-2">
+                {loading ? <><Spinner size={20} /> Verifying...</> : 'Verify & Check-In'}
               </button>
               {message && <p className="mt-4 text-sm text-center font-medium text-brand-700">{message}</p>}
             </form>
@@ -206,17 +213,15 @@ export default function ReceptionDashboard() {
                     
                     {appt.status === 'BOOKED' && (
                       <div className="flex gap-2">
-                        <button onClick={() => markLate(appt.id)} className="text-xs font-semibold px-2 py-1 bg-amber-50 text-amber-600 rounded hover:bg-amber-100 border border-amber-200 transition-colors">Mark Late</button>
-                        <button onClick={() => markEmergency(appt.id)} className="text-xs font-semibold px-2 py-1 bg-red-50 text-red-600 rounded hover:bg-red-100 border border-red-200 transition-colors flex items-center gap-1"><AlertTriangle className="w-3 h-3"/> Emergency</button>
+                        <button onClick={() => markLateHandler(appt.id)} className="text-xs font-semibold px-2 py-1 bg-amber-50 text-amber-600 rounded hover:bg-amber-100 border border-amber-200 transition-colors">Mark Late</button>
+                        <button onClick={() => markEmergencyHandler(appt.id)} className="text-xs font-semibold px-2 py-1 bg-red-50 text-red-600 rounded hover:bg-red-100 border border-red-200 transition-colors flex items-center gap-1"><AlertTriangle className="w-3 h-3"/> Emergency</button>
                       </div>
                     )}
                   </div>
                 </div>
               ))}
-            </div>
           </div>
         </div>
-
       </div>
     </div>
   );

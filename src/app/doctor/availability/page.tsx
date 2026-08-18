@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import { getDoctorAvailability, addDoctorAvailability, deleteDoctorAvailability } from '../../../api/doctors';
 
 export default function DoctorAvailability() {
   const [user, setUser] = useState<any>(null);
@@ -26,15 +26,15 @@ export default function DoctorAvailability() {
 
   const loadAvailabilities = async (docId: string) => {
     try {
-      const res = await axios.get(`http://localhost:4000/api/doctors/${docId}/availability`);
-      setAvailabilities(res.data);
+      const data = await getDoctorAvailability(docId);
+      setAvailabilities(data);
     } catch(e) {}
   };
 
   const addAvailability = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post(`http://localhost:4000/api/doctors/${user.id}/availability`, {
+      await addDoctorAvailability(user.id, {
         dayOfWeek: parseInt(dayOfWeek),
         startTime,
         endTime,
@@ -47,9 +47,9 @@ export default function DoctorAvailability() {
     }
   };
 
-  const deleteAvailability = async (id: string) => {
+  const deleteAvailabilityHandler = async (id: string) => {
     try {
-      await axios.delete(`http://localhost:4000/api/doctors/availability/${id}`);
+      await deleteDoctorAvailability(id);
       loadAvailabilities(user.id);
     } catch(e) {
       alert('Failed to delete availability');
@@ -105,7 +105,7 @@ export default function DoctorAvailability() {
                   </p>
                   <p className="text-sm text-slate-500">{a.startTime} - {a.endTime} ({a.slotDuration} min slots)</p>
                 </div>
-                <button onClick={() => deleteAvailability(a.id)} className="text-red-500 hover:bg-red-50 p-2 rounded-lg text-sm font-semibold transition-colors">Remove</button>
+                <button onClick={() => deleteAvailabilityHandler(a.id)} className="text-red-500 hover:bg-red-50 p-2 rounded-lg text-sm font-semibold transition-colors">Remove</button>
               </div>
             ))}
           </div>

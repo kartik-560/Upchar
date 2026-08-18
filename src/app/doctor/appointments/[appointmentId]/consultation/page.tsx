@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Stethoscope, Pill, AlertCircle, Save, Plus, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
+import { getAppointmentById } from '../../../../../api/appointments';
+import { saveConsultation } from '../../../../../api/consultations';
+import { Skeleton } from '../../../../../components/Skeleton';
+import { Spinner } from '../../../../../components/Spinner';
 
 export default function DoctorConsultationForm() {
   const { appointmentId } = useParams() as { appointmentId: string };
@@ -32,8 +36,8 @@ export default function DoctorConsultationForm() {
 
   const fetchAppt = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/appointments/${appointmentId}`);
-      setAppt(await res.json());
+      const data = await getAppointmentById(appointmentId);
+      setAppt(data);
     } catch (err) {
       console.error(err);
     }
@@ -70,13 +74,7 @@ export default function DoctorConsultationForm() {
         medicines, prescriptionInstructions
       };
 
-      const res = await fetch(`http://localhost:4000/api/consultations/${appt.consultation.id}/save`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      
-      if (!res.ok) throw new Error('Failed to save');
+      await saveConsultation(appt.consultation.id, payload);
       
       // Also end the consultation if desired, but for MVP we just redirect back to queue.
       router.push('/doctor');
@@ -87,7 +85,19 @@ export default function DoctorConsultationForm() {
     }
   };
 
-  if (!appt) return <div className="p-8">Loading...</div>;
+  if (!appt) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-900 pb-12">
+        <header className="bg-white border-b border-slate-200 sticky top-0 z-10 px-6 py-4 flex items-center justify-between">
+          <Skeleton className="w-48 h-6" />
+        </header>
+        <main className="max-w-4xl mx-auto px-6 mt-8 space-y-8">
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-96 rounded-3xl" />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-12">
@@ -219,7 +229,7 @@ export default function DoctorConsultationForm() {
 
           <div className="pt-4">
             <button type="submit" disabled={saving} className="w-full py-5 bg-brand-600 text-white font-bold rounded-2xl hover:bg-brand-700 transition-colors disabled:opacity-70 flex items-center justify-center gap-3 text-lg shadow-xl shadow-brand-500/30">
-              <Save className="w-6 h-6" /> {saving ? 'Saving Consultation...' : 'Save & Complete Consultation'}
+              {saving ? <><Spinner size={24} /> Saving Consultation...</> : <><Save className="w-6 h-6" /> Save & Complete Consultation</>}
             </button>
           </div>
         </form>

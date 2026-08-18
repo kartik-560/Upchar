@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Brain, Activity, ShieldAlert, CheckCircle2, AlertTriangle, ArrowRight, ActivitySquare } from 'lucide-react';
 import clsx from 'clsx';
+import { getPredictions, selfPredict } from '../../../api/ai';
+import { Skeleton } from '../../../components/Skeleton';
+import { Spinner } from '../../../components/Spinner';
 
 export default function AIInsightsPage() {
   const router = useRouter();
@@ -29,8 +32,8 @@ export default function AIInsightsPage() {
 
   const fetchPredictions = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/ai/predictions/${id}`);
-      if (res.ok) setPredictions(await res.json());
+      const data = await getPredictions(id);
+      setPredictions(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -42,24 +45,17 @@ export default function AIInsightsPage() {
     e.preventDefault();
     setRunning(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/ai/self-predict`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          patientId,
-          vitals: {
-            age: Number(vitals.age),
-            bmi: Number(vitals.bmi),
-            systolic: Number(vitals.systolic)
-          }
-        })
+      const pred = await selfPredict({
+        patientId,
+        vitals: {
+          age: Number(vitals.age),
+          bmi: Number(vitals.bmi),
+          systolic: Number(vitals.systolic)
+        }
       });
-      if (res.ok) {
-        const pred = await res.json();
-        setCurrentPrediction(pred);
-        setPredictions(prev => [pred, ...prev]);
-        setVitals({ age: '', bmi: '', systolic: '' });
-      }
+      setCurrentPrediction(pred);
+      setPredictions(prev => [pred, ...prev]);
+      setVitals({ age: '', bmi: '', systolic: '' });
     } catch (err) {
       console.error(err);
       alert('Failed to generate prediction');
@@ -160,14 +156,7 @@ export default function AIInsightsPage() {
                   disabled={running}
                   className="w-full mt-2 bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 rounded-xl transition-all disabled:opacity-70 flex items-center justify-center gap-2 shadow-sm shadow-brand-600/20"
                 >
-                  {running ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  ) : (
-                    <>
-                      Run Prediction
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
+                  {running ? <><Spinner size={20} /> Analyzing...</> : <><Brain className="w-5 h-5" /> Run Prediction <ArrowRight className="w-4 h-4" /></>}
                 </button>
               </form>
 

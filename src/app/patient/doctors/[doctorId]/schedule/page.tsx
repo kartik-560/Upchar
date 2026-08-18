@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import clsx from 'clsx';
+import { getDoctorById, getDoctorSlots } from '../../../../../api/doctors';
+import { Skeleton } from '../../../../../components/Skeleton';
 
 export default function DoctorSchedulePage() {
   const { doctorId } = useParams() as { doctorId: string };
@@ -25,9 +27,8 @@ export default function DoctorSchedulePage() {
 
   const fetchDoctor = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/doctors/${doctorId}`);
-      if (!res.ok) throw new Error('Not found');
-      setDoctor(await res.json());
+      const data = await getDoctorById(doctorId);
+      setDoctor(data);
     } catch (err) {
       console.error(err);
     }
@@ -36,8 +37,8 @@ export default function DoctorSchedulePage() {
   const fetchSlots = async (selectedDate: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/doctors/${doctorId}/slots?date=${selectedDate}`);
-      setSlots(await res.json());
+      const data = await getDoctorSlots(doctorId, selectedDate);
+      setSlots(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -61,7 +62,15 @@ export default function DoctorSchedulePage() {
     router.push('/patient/appointments/book');
   };
 
-  if (!doctor) return <div className="p-8">Loading...</div>;
+  if (!doctor) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-8 pb-12">
+        <Skeleton className="w-1/4 h-6 mb-8" />
+        <Skeleton className="w-1/3 h-10 mb-2" />
+        <Skeleton className="w-full h-32 rounded-2xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -95,7 +104,12 @@ export default function DoctorSchedulePage() {
 
         {/* Slots Grid */}
         {loading ? (
-          <div className="text-center text-slate-500 py-12">Loading availability...</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-24 rounded-xl" />
+          </div>
         ) : slots.length === 0 ? (
           <div className="text-center py-16 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
             <Clock className="w-12 h-12 text-slate-300 mx-auto mb-3" />

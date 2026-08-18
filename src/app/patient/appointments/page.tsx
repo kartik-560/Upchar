@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Calendar, Clock, MapPin } from 'lucide-react';
 import clsx from 'clsx';
+import { getAppointmentsByPatient } from '../../../api/appointments';
+import { Skeleton } from '../../../components/Skeleton';
 
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<any[]>([]);
@@ -17,8 +19,8 @@ export default function AppointmentsPage() {
 
   const fetchData = async (patientId: string) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/appointments/patient/${patientId}`);
-      setAppointments(await res.json());
+      const data = await getAppointmentsByPatient(patientId);
+      setAppointments(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -59,7 +61,11 @@ export default function AppointmentsPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-slate-500">Loading appointments...</div>
+        <div className="grid gap-4">
+          <Skeleton className="h-32 w-full rounded-2xl" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
+        </div>
       ) : currentList.length === 0 ? (
         <div className="bg-white rounded-3xl p-12 border border-slate-200 text-center shadow-sm">
           <Calendar className="w-16 h-16 text-slate-300 mx-auto mb-4" />

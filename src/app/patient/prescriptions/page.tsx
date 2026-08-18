@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Pill, Clock, UserRound } from 'lucide-react';
 import Link from 'next/link';
+import { getPatientPrescriptions } from '../../../api/medical';
+import { Skeleton } from '../../../components/Skeleton';
 
 export default function PrescriptionsPage() {
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
@@ -15,8 +17,8 @@ export default function PrescriptionsPage() {
 
   const fetchData = async (patientId: string) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/prescriptions/patient/${patientId}`);
-      setPrescriptions(await res.json());
+      const data = await getPatientPrescriptions(patientId);
+      setPrescriptions(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -32,7 +34,12 @@ export default function PrescriptionsPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-slate-500">Loading prescriptions...</div>
+        <div className="grid md:grid-cols-2 gap-6">
+          <Skeleton className="h-48 rounded-3xl w-full" />
+          <Skeleton className="h-48 rounded-3xl w-full" />
+          <Skeleton className="h-48 rounded-3xl w-full" />
+          <Skeleton className="h-48 rounded-3xl w-full" />
+        </div>
       ) : prescriptions.length === 0 ? (
         <div className="bg-white rounded-3xl p-12 border border-slate-200 text-center shadow-sm">
           <Pill className="w-16 h-16 text-slate-300 mx-auto mb-4" />

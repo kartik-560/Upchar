@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import axios from 'axios';
 import { io } from 'socket.io-client';
+import { getQueue } from '../../api/queue';
+import { startConsultation, delayConsultation } from '../../api/consultations';
 import { Activity, Clock, PlayCircle, CheckCircle, Clock4, Users } from 'lucide-react';
 import clsx from 'clsx';
+import { Spinner } from '../../components/Spinner';
 
 export default function DoctorDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -22,7 +24,7 @@ export default function DoctorDashboard() {
     setUser(parsed);
     loadQueue(parsed.id);
 
-    const socket = io('http://localhost:4000');
+    const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000');
     socket.on('queueUpdate', (data) => {
       if (data.doctorId === parsed.id) {
         setQueue(data.queue);
@@ -34,15 +36,15 @@ export default function DoctorDashboard() {
 
   const loadQueue = async (docId: string) => {
     try {
-      const q = await axios.get(`http://localhost:4000/api/queue/${docId}`);
-      setQueue(q.data);
+      const q = await getQueue(docId);
+      setQueue(q);
     } catch(e) {}
   };
 
-  const startConsultation = async (appointmentId: string) => {
+  const startConsultationHandler = async (appointmentId: string) => {
     setLoading(true);
     try {
-      await axios.post('http://localhost:4000/api/consultations/start', { appointmentId });
+      await startConsultation(appointmentId);
     } finally {
       setLoading(false);
     }
@@ -51,7 +53,7 @@ export default function DoctorDashboard() {
   const markDelay = async (minutes: number) => {
     setLoading(true);
     try {
-      await axios.post('http://localhost:4000/api/consultations/delay', { doctorId: user.id, delayMinutes: minutes });
+      await delayConsultation(user.id, minutes);
     } finally {
       setLoading(false);
     }
@@ -110,10 +112,10 @@ export default function DoctorDashboard() {
                   
                   <div className="flex gap-3">
                     <button disabled={loading} onClick={() => markDelay(15)} className="flex-1 py-3 bg-amber-50 text-amber-700 rounded-xl font-bold hover:bg-amber-100 transition-colors flex justify-center items-center gap-2 border border-amber-200 disabled:opacity-70">
-                      <Clock4 className="w-5 h-5" /> Delay +15m
+                      {loading ? <Spinner size={20} /> : <Clock4 className="w-5 h-5" />} Delay +15m
                     </button>
                     <button disabled={loading} onClick={() => markDelay(30)} className="flex-1 py-3 bg-red-50 text-red-700 rounded-xl font-bold hover:bg-red-100 transition-colors flex justify-center items-center gap-2 border border-red-200 disabled:opacity-70">
-                      Delay +30m
+                      {loading ? <Spinner size={20} /> : null} Delay +30m
                     </button>
                   </div>
                 </div>
@@ -123,8 +125,8 @@ export default function DoctorDashboard() {
                 <Users className="w-16 h-16 mb-4 opacity-20" />
                 <p className="text-lg font-medium text-slate-500">No active consultation</p>
                 {nextPatients.length > 0 && nextPatients[0].status === 'CHECKED_IN' && (
-                  <button disabled={loading} onClick={() => startConsultation(nextPatients[0].id)} className="mt-8 px-8 py-3 bg-brand-600 text-white rounded-full font-bold hover:bg-brand-700 transition-colors flex items-center gap-2 disabled:opacity-70 shadow-md shrink-0">
-                    <PlayCircle className="w-5 h-5" /> Start Next Patient
+                  <button disabled={loading} onClick={() => startConsultationHandler(nextPatients[0].id)} className="mt-8 px-8 py-3 bg-brand-600 text-white rounded-full font-bold hover:bg-brand-700 transition-colors flex items-center gap-2 disabled:opacity-70 shadow-md shrink-0">
+                    {loading ? <Spinner size={20} /> : <PlayCircle className="w-5 h-5" />} Start Next Patient
                   </button>
                 )}
               </div>
@@ -167,8 +169,8 @@ export default function DoctorDashboard() {
                 
                 <div className="text-right">
                   {idx === 0 && appt.status === 'CHECKED_IN' && !currentPatient ? (
-                    <button disabled={loading} onClick={() => startConsultation(appt.id)} className="px-4 py-2 bg-brand-500 text-white rounded-lg font-semibold text-sm hover:bg-brand-600 transition-colors disabled:opacity-70">
-                      Call Patient
+                    <button disabled={loading} onClick={() => startConsultationHandler(appt.id)} className="px-4 py-2 bg-brand-500 text-white rounded-lg font-semibold text-sm hover:bg-brand-600 transition-colors disabled:opacity-70 flex items-center gap-2">
+                      {loading ? <Spinner size={16} /> : null} Call Patient
                     </button>
                   ) : (
                     <div className="flex flex-col items-end">

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { History, Stethoscope, Pill, MapPin } from 'lucide-react';
+import { getPatientDiagnoses } from '../../../api/medical';
+import { Skeleton } from '../../../components/Skeleton';
 
 export default function MedicalHistoryPage() {
   const [history, setHistory] = useState<any[]>([]);
@@ -15,8 +17,8 @@ export default function MedicalHistoryPage() {
 
   const fetchData = async (patientId: string) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/diagnoses/patient/${patientId}`);
-      setHistory(await res.json());
+      const data = await getPatientDiagnoses(patientId);
+      setHistory(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -32,7 +34,11 @@ export default function MedicalHistoryPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-slate-500">Loading history...</div>
+        <div className="space-y-6 max-w-3xl">
+          <Skeleton className="h-32 rounded-3xl w-full" />
+          <Skeleton className="h-32 rounded-3xl w-full" />
+          <Skeleton className="h-32 rounded-3xl w-full" />
+        </div>
       ) : history.length === 0 ? (
         <div className="bg-white rounded-3xl p-12 border border-slate-200 text-center shadow-sm">
           <History className="w-16 h-16 text-slate-300 mx-auto mb-4" />

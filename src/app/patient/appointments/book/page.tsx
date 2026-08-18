@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle2, UserRound, Calendar as CalendarIcon, Clock, MapPin } from 'lucide-react';
+import { bookAppointment } from '../../../../api/appointments';
+import { Skeleton } from '../../../../components/Skeleton';
+import { Spinner } from '../../../../components/Spinner';
 
 export default function BookAppointmentPage() {
   const router = useRouter();
@@ -40,18 +43,7 @@ export default function BookAppointmentPage() {
         reason
       };
 
-      const res = await fetch('http://localhost:4000/api/appointments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to book');
-      }
-
-      const confirmedAppt = await res.json();
+      const confirmedAppt = await bookAppointment(payload);
       setSuccess(confirmedAppt);
       sessionStorage.removeItem('bookingSlot');
     } catch (err: any) {
@@ -61,7 +53,21 @@ export default function BookAppointmentPage() {
     }
   };
 
-  if (!bookingData || !user) return <div className="p-8">Loading...</div>;
+  if (!bookingData || !user) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-8 p-8">
+        <Skeleton className="w-1/4 h-6 mb-8" />
+        <Skeleton className="w-1/3 h-10 mb-2" />
+        <div className="grid md:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <Skeleton className="h-32 rounded-3xl" />
+            <Skeleton className="h-32 rounded-3xl" />
+          </div>
+          <Skeleton className="h-64 rounded-3xl" />
+        </div>
+      </div>
+    );
+  }
 
   if (success) {
     return (
@@ -159,7 +165,7 @@ export default function BookAppointmentPage() {
             disabled={loading}
             className="w-full py-4 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 transition-colors disabled:opacity-70 flex justify-center items-center gap-2 shadow-lg shadow-brand-500/30"
           >
-            {loading ? 'Confirming...' : 'Confirm Appointment'}
+            {loading ? <><Spinner size={20} /> Confirming...</> : 'Confirm Appointment'}
           </button>
         </form>
       </div>

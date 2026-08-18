@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Pill, UserRound, Clock, AlertCircle } from 'lucide-react';
 import clsx from 'clsx';
+import { getPrescriptionById } from '../../../../api/medical';
+import { Skeleton } from '../../../../components/Skeleton';
 
 export default function PrescriptionDetailsPage() {
   const { prescriptionId } = useParams() as { prescriptionId: string };
@@ -17,9 +19,8 @@ export default function PrescriptionDetailsPage() {
 
   const fetchPres = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/prescriptions/${prescriptionId}`);
-      if (!res.ok) throw new Error('Not found');
-      setPres(await res.json());
+      const data = await getPrescriptionById(prescriptionId);
+      setPres(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -27,7 +28,22 @@ export default function PrescriptionDetailsPage() {
     }
   };
 
-  if (loading) return <div className="p-8">Loading details...</div>;
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto pb-12 space-y-8">
+        <Skeleton className="w-1/4 h-6 mb-8" />
+        <Skeleton className="w-1/3 h-10 mb-2" />
+        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
+          <Skeleton className="w-full h-24 mb-8" />
+          <div className="space-y-4">
+            <Skeleton className="w-full h-12" />
+            <Skeleton className="w-full h-12" />
+            <Skeleton className="w-full h-12" />
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (!pres) return <div className="p-8 text-red-500">Prescription not found.</div>;
 
   return (

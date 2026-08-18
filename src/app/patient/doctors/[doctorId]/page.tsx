@@ -4,6 +4,8 @@ import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { MapPin, Star, UserRound, ArrowLeft, Calendar, Award, Clock } from 'lucide-react';
+import { getDoctorById } from '../../../../api/doctors';
+import { Skeleton } from '../../../../components/Skeleton';
 
 export default function DoctorProfilePage({ params }: { params: Promise<{ doctorId: string }> }) {
   const router = useRouter();
@@ -17,9 +19,7 @@ export default function DoctorProfilePage({ params }: { params: Promise<{ doctor
 
   const fetchDoctor = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/doctors/${doctorId}`);
-      if (!res.ok) throw new Error('Not found');
-      const data = await res.json();
+      const data = await getDoctorById(doctorId);
       setDoctor(data);
     } catch (err) {
       console.error(err);
@@ -28,7 +28,28 @@ export default function DoctorProfilePage({ params }: { params: Promise<{ doctor
     }
   };
 
-  if (loading) return <div className="p-8 text-slate-500">Loading profile...</div>;
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-8 pb-12">
+        <Skeleton className="w-1/4 h-6 mb-8" />
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
+          <div className="flex items-start gap-8 mb-8 pb-8 border-b border-slate-100">
+            <Skeleton className="w-32 h-32 rounded-3xl" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="w-1/2 h-8" />
+              <Skeleton className="w-1/3 h-5" />
+              <Skeleton className="w-1/4 h-5" />
+            </div>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-6">
+            <Skeleton className="h-32 rounded-2xl" />
+            <Skeleton className="h-32 rounded-2xl" />
+            <Skeleton className="h-32 rounded-2xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (!doctor) return <div className="p-8 text-red-500">Doctor not found.</div>;
 
   return (

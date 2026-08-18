@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import axios from 'axios';
 import { ArrowLeft, History, Pill, Stethoscope, Activity, Calendar } from 'lucide-react';
 import Link from 'next/link';
+import Link from 'next/link';
+import { getPatientDiagnoses, getPatientPrescriptions } from '../../../../api/medical';
+import { Skeleton } from '../../../../components/Skeleton';
 
 export default function PatientHistoryPage() {
   const params = useParams();
@@ -38,12 +40,12 @@ export default function PatientHistoryPage() {
   const fetchPatientHistory = async () => {
     setLoading(true);
     try {
-      const [diagRes, presRes] = await Promise.all([
-        axios.get(`http://localhost:4000/api/diagnoses/patient/${patientId}`),
-        axios.get(`http://localhost:4000/api/prescriptions/patient/${patientId}`)
+      const [diagData, presData] = await Promise.all([
+        getPatientDiagnoses(patientId),
+        getPatientPrescriptions(patientId)
       ]);
-      setDiagnoses(diagRes.data);
-      setPrescriptions(presRes.data);
+      setDiagnoses(diagData);
+      setPrescriptions(presData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -68,8 +70,9 @@ export default function PatientHistoryPage() {
       </div>
 
       {loading ? (
-        <div className="flex-1 flex justify-center items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
+        <div className="grid md:grid-cols-2 gap-8 flex-1 min-h-0">
+          <Skeleton className="h-full rounded-3xl" />
+          <Skeleton className="h-full rounded-3xl" />
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-8 flex-1 min-h-0">

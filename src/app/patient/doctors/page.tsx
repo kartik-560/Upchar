@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, MapPin, Star, UserRound } from 'lucide-react';
+import { getDoctors } from '../../../api/doctors';
+import { Skeleton } from '../../../components/Skeleton';
 
 export default function FindDoctorsPage() {
   const [doctors, setDoctors] = useState<any[]>([]);
@@ -15,8 +17,7 @@ export default function FindDoctorsPage() {
 
   const fetchDoctors = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/doctors?search=${search}`);
-      const data = await res.json();
+      const data = await getDoctors(search);
       setDoctors(data);
     } catch (err) {
       console.error(err);
@@ -46,7 +47,11 @@ export default function FindDoctorsPage() {
 
       {/* Results */}
       {loading ? (
-        <div className="text-slate-500">Loading doctors...</div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Skeleton className="h-64 rounded-3xl w-full" />
+          <Skeleton className="h-64 rounded-3xl w-full" />
+          <Skeleton className="h-64 rounded-3xl w-full" />
+        </div>
       ) : doctors.length === 0 ? (
         <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-500 shadow-sm">
           No doctors found.

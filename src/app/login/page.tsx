@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Activity, ArrowRight, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import { Activity, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { login, register } from '../../api/auth';
+import { Spinner } from '../../components/Spinner';
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -22,15 +23,14 @@ export default function LoginPage() {
     setError('');
     
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       const payload = isLogin ? { email, password } : { email, password, name, role };
       
-      const res = await axios.post(`http://localhost:4000${endpoint}`, payload);
+      const data = isLogin ? await login(payload) : await register(payload);
       
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       
-      const userRole = res.data.user.role;
+      const userRole = data.user.role;
       if (userRole === 'PATIENT') router.push('/patient');
       else if (userRole === 'RECEPTION') router.push('/reception');
       else if (userRole === 'DOCTOR') router.push('/doctor');
@@ -99,18 +99,16 @@ export default function LoginPage() {
 
             {!isLogin && (
               <div>
-                <label className="block text-sm font-medium text-slate-700">Role (Demo)</label>
-                <select value={role} onChange={e=>setRole(e.target.value)} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm rounded-xl">
+                <label className="block text-sm font-medium text-slate-700">Role</label>
+                <select value={role} disabled onChange={e=>setRole(e.target.value)} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 bg-slate-100 text-slate-500 cursor-not-allowed focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm rounded-xl">
                   <option value="PATIENT">Patient</option>
-                  <option value="DOCTOR">Doctor</option>
-                  <option value="RECEPTION">Reception</option>
                 </select>
               </div>
             )}
 
             <div>
-              <button disabled={loading} type="submit" className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-colors disabled:opacity-70">
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (isLogin ? 'Sign in' : 'Register')}
+              <button type="submit" disabled={loading} className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-brand-500/30 text-base font-bold text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-all disabled:opacity-70">
+                {loading ? <><Spinner size={20} className="mr-2" /> {isLogin ? 'Signing in...' : 'Registering...'}</> : (isLogin ? 'Sign in' : 'Register')}
               </button>
             </div>
           </form>
@@ -121,14 +119,16 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-slate-200">
-            <p className="text-sm text-slate-500 text-center mb-4">Demo Accounts</p>
-            <div className="flex gap-2 justify-center">
-              <button onClick={() => fillDemo('PATIENT')} className="px-3 py-1 text-xs font-medium rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700">Patient</button>
-              <button onClick={() => fillDemo('RECEPTION')} className="px-3 py-1 text-xs font-medium rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700">Reception</button>
-              <button onClick={() => fillDemo('DOCTOR')} className="px-3 py-1 text-xs font-medium rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700">Doctor</button>
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mt-8 pt-6 border-t border-slate-200">
+              <p className="text-sm text-slate-500 text-center mb-4">Demo Accounts</p>
+              <div className="flex gap-2 justify-center">
+                <button onClick={() => fillDemo('PATIENT')} className="px-3 py-1 text-xs font-medium rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700">Patient</button>
+                <button onClick={() => fillDemo('RECEPTION')} className="px-3 py-1 text-xs font-medium rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700">Reception</button>
+                <button onClick={() => fillDemo('DOCTOR')} className="px-3 py-1 text-xs font-medium rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700">Doctor</button>
+              </div>
             </div>
-          </div>
+          )}
 
         </div>
       </div>

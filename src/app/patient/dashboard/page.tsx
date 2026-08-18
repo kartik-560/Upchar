@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { Calendar, Clock, MapPin, Video, Stethoscope, Pill, Search } from 'lucide-react';
 import clsx from 'clsx';
 import { QRCodeSVG } from 'qrcode.react';
+import { getAppointmentsByPatient } from '../../../api/appointments';
+import { getPatientDiagnoses, getPatientPrescriptions } from '../../../api/medical';
+import { Skeleton } from '../../../components/Skeleton';
 
 export default function PatientDashboard() {
   const router = useRouter();
@@ -28,14 +31,11 @@ export default function PatientDashboard() {
 
   const fetchData = async (patientId: string) => {
     try {
-      const [apptRes, diagRes, presRes] = await Promise.all([
-        fetch(`http://localhost:4000/api/appointments/patient/${patientId}`),
-        fetch(`http://localhost:4000/api/diagnoses/patient/${patientId}`),
-        fetch(`http://localhost:4000/api/prescriptions/patient/${patientId}`)
+      const [apptData, diagData, presData] = await Promise.all([
+        getAppointmentsByPatient(patientId),
+        getPatientDiagnoses(patientId),
+        getPatientPrescriptions(patientId)
       ]);
-      const apptData = await apptRes.json();
-      const diagData = await diagRes.json();
-      const presData = await presRes.json();
       
       setAppointments(Array.isArray(apptData) ? apptData : []);
       setDiagnoses(Array.isArray(diagData) ? diagData : []);
@@ -48,7 +48,30 @@ export default function PatientDashboard() {
   };
 
   if (loading || !user) {
-    return <div className="flex h-full items-center justify-center">Loading dashboard...</div>;
+    return (
+      <div className="space-y-8">
+        <div>
+          <Skeleton className="w-1/3 h-10 mb-2" />
+          <Skeleton className="w-1/4 h-5" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+        </div>
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <Skeleton className="h-64 rounded-3xl" />
+            <Skeleton className="h-48 rounded-2xl" />
+          </div>
+          <div className="space-y-6">
+            <Skeleton className="h-48 rounded-3xl" />
+            <Skeleton className="h-48 rounded-3xl" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const today = new Date().toISOString().split('T')[0];

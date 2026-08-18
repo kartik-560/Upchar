@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Activity, Users, CalendarCheck, Clock, TrendingUp, LogOut } from 'lucide-react';
+import { getDemand } from '../../api/ai';
+import clsx from 'clsx';
+import { Skeleton } from '../../components/Skeleton';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -17,8 +20,7 @@ export default function AdminDashboard() {
     setUser(parsed);
     
     // Fetch AI Demand prediction
-    fetch('http://localhost:4000/api/ai/demand')
-      .then(res => res.json())
+    getDemand()
       .then(data => setDemand(data))
       .catch(e => console.log(e));
   }, []);
@@ -94,9 +96,15 @@ export default function AdminDashboard() {
                 <p className="text-xs text-slate-400 mt-4 text-center font-mono">Model Confidence: {(demand.confidence * 100).toFixed(0)}%</p>
               </div>
             ) : (
-              <div className="flex-1 flex flex-col justify-center items-center text-center">
-                <Activity className="w-16 h-16 text-slate-200 mb-4" />
-                <p className="text-slate-500 max-w-sm">Loading predictive analytics...</p>
+              <div className="space-y-4">
+                <Skeleton className="w-full h-4 mb-2" />
+                <div className="grid grid-cols-2 gap-4">
+                  <Skeleton className="h-10 rounded-xl" />
+                  <Skeleton className="h-10 rounded-xl" />
+                  <Skeleton className="h-10 rounded-xl" />
+                  <Skeleton className="h-10 rounded-xl" />
+                  <Skeleton className="h-10 rounded-xl" />
+                </div>
               </div>
             )}
           </div>
