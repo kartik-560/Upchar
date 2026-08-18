@@ -8,6 +8,7 @@ import { getQueue, checkIn, markLate, markEmergency } from '../../api/queue';
 import { Activity, CheckSquare, Scan, Users, Clock, AlertTriangle, LogOut, Camera } from 'lucide-react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { Spinner } from '../../components/Spinner';
+import clsx from 'clsx';
 
 export default function ReceptionDashboard() {
   const [user, setUser] = useState<any>(null);

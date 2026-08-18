@@ -76,8 +76,8 @@ export default function SidebarLayout({ children }: { children: ReactNode }) {
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
-          <Activity className="w-6 h-6 text-brand-600 hidden md:block" />
-          <span className="font-bold text-lg tracking-tight text-brand-900">UPCHAAR</span>
+          <img src="/upchar.jpg.jpeg" alt="Upchaar Logo" className="h-8 w-auto rounded-lg shadow-sm" />
+          <img src="/upchar1.jpg.jpeg" alt="Upchaar Logo Secondary" className="h-8 w-auto rounded-lg shadow-sm" />
           <span className="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-500 rounded-lg ml-2 hidden sm:block uppercase tracking-wider">
             {user.role}
           </span>

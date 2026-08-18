@@ -6,8 +6,8 @@ export default function Home() {
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-brand-200">
       <nav className="fixed w-full z-50 glass px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Activity className="w-8 h-8 text-brand-600" />
-          <span className="text-xl font-bold tracking-tight text-slate-900">UPCHAAR</span>
+          <img src="/upchar.jpg.jpeg" alt="Upchaar Logo" className="h-8 w-auto rounded-lg shadow-sm" />
+          <img src="/upchar1.jpg.jpeg" alt="Upchaar Logo Secondary" className="h-8 w-auto rounded-lg shadow-sm" />
         </div>
         <div className="flex gap-4">
           <Link href="/login" className="px-5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">

@@ -56,8 +56,8 @@ export default function LoginPage() {
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link href="/" className="flex justify-center items-center gap-2 mb-6">
-          <Activity className="w-10 h-10 text-brand-600" />
-          <span className="text-2xl font-bold tracking-tight text-slate-900">UPCHAAR</span>
+          <img src="/upchar.jpg.jpeg" alt="Upchaar Logo" className="h-12 w-auto rounded-xl shadow-md" />
+          {/* <img src="/upchar1.jpg.jpeg" alt="Upchaar Logo Secondary" className="h-12 w-auto rounded-xl shadow-md" /> */}
         </Link>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
           {isLogin ? 'Sign in to your account' : 'Create new account'}

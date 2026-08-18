@@ -69,7 +69,9 @@ export default function DoctorDashboard() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Welcome back, Dr. {user.name.split(' ')[0]}</h1>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+            Welcome back, {user.name.toLowerCase().startsWith('dr') ? user.name : `Dr. ${user.name}`}
+          </h1>
           <p className="text-slate-500 mt-2 text-lg">Here is your consultation queue for today.</p>
         </div>
       </div>
